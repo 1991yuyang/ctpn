@@ -81,5 +81,9 @@ python predict.py
 ```
 # 4 Result  
 ## 4.1 with side refine  
-![image](result_with_side_refine/0.png)
+<p float="left">
+  <img src="result_with_side_refine/0.png" width="100" />
+  <img src="result_with_side_refine/1.png" width="100" /> 
+  <img src="result_with_side_refine/2.png" width="100" />
+</p>
 ## 4.2 without side refine  
