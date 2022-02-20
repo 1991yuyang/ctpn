@@ -79,6 +79,7 @@ due to limited hardware resources, I only used 37 images from IDCAR_2015 for tra
 ```
 python predict.py
 ```
+
 # 4 Result  
 ## 4.1 with side refine  
 <p float="left">
