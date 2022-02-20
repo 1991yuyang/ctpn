@@ -1,12 +1,12 @@
 # 1 Data Preparation  
 ## 1.1 data directory  
 train_image_dir  
-&nbsp;&nbsp;img1.jpg  
-    img2.jpg  
-    ......  
-train_label_dir  
-    gt_img1.txt  
-    gt_img2.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;img1.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;img2.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;......  
+train_label_dir
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
     ......  
 ## 1.2 example of label file
 1.train:
