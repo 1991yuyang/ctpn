@@ -25,7 +25,7 @@ The format of each line of the gt_xxx.txt file is as follows:
 ```
 x1,y1,x2,y2,x3,y3,x4,y4,text_content
 ```
-
+just like the format of ICDAR_2015
 1.train:
     (1)set parameters of training in train.py file:
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"
