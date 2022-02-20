@@ -21,7 +21,7 @@ valid_label_dir
 &nbsp;&nbsp;&nbsp;&nbsp;...... 
 
 ## 1.2 example of label file  
-The format of each line of the gt_xxx.txt file is a bounding box of a text line, format is as follows:  
+each line of the gt_xxx.txt file is a ground truth bounding box of a text line, format is as follows:  
 ```
 x1,y1,x2,y2,x3,y3,x4,y4,text_content
 ```
@@ -32,7 +32,7 @@ top right point: (x2,y2)
 bottom right point: (x3,y3)
 bottom left point: (x4,y4)
 ```
-it should be noted that the bounding box is not a standard rectangle, but a polygon with four sides, in the same format as label file of ICDAR_2015  
+it should be noted that the bounding box of a text line is not a standard rectangle, but a polygon with four sides, in the same format as label file of ICDAR_2015  
 # 2 Train:
 ## 2.1 set parameters of training in train.py file  
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"  
