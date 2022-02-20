@@ -21,7 +21,7 @@ valid_label_dir
 &nbsp;&nbsp;&nbsp;&nbsp;...... 
 
 ## 1.2 example of label file  
-The format of each line of the gt_xxx.txt file is as follows:  
+The format of each line of the gt_xxx.txt file is a bounding box of a text line, format is as follows:  
 ```
 x1,y1,x2,y2,x3,y3,x4,y4,text_content
 ```
