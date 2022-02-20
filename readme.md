@@ -5,11 +5,20 @@ train_image_dir
 &nbsp;&nbsp;&nbsp;&nbsp;img2.jpg  
 &nbsp;&nbsp;&nbsp;&nbsp;......  
 
-train_label_dir
+train_label_dir  
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
 &nbsp;&nbsp;&nbsp;&nbsp;......  
 
+valid_image_dir  
+&nbsp;&nbsp;&nbsp;&nbsp;img1.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;img2.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;......  
+
+valid_label_dir  
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;...... 
 ## 1.2 example of label file
 1.train:
     (1)set parameters of training in train.py file:
