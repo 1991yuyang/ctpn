@@ -1,6 +1,14 @@
-# 1.Data Preparation  
-## data directory:
-
+# 1 Data Preparation  
+## 1.1 data directory  
+train_image_dir  
+    img1.jpg  
+    img2.jpg  
+    ......
+train_label_dir
+    gt_img1.txt  
+    gt_img2.txt  
+    ......
+## 1.2 example of label file
 1.train:
     (1)set parameters of training in train.py file:
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"
