@@ -55,6 +55,8 @@ same as the format of ICDAR_2015
 ```
 python train.py
 ```
+due to limited hardware resources, I only used 37 images from IDCAR_2015 for training
+
 # 3 Predict  
 ## 3.1 set the parameter of text line connector in TextLineCfg class in text_line.py file  
     TEXT_PROPOSALS_WIDTH: anchor width, use default 16 pixel, don't modify it  
@@ -77,4 +79,6 @@ python train.py
 ```
 python predict.py
 ```
-# 4 Result
+# 4 Result  
+## 4.1 with side refine  
+## 4.2 without side refine  
