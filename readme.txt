@@ -1,3 +1,6 @@
+#1.Data Preparation  
+##data directory:
+
 1.train:
     (1)set parameters of training in train.py file:
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"
