@@ -3,11 +3,11 @@
 train_image_dir  
     img1.jpg  
     img2.jpg  
-    ......
+    ......  
 train_label_dir  
     gt_img1.txt  
     gt_img2.txt  
-    ......
+    ......  
 ## 1.2 example of label file
 1.train:
     (1)set parameters of training in train.py file:
