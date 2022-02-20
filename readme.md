@@ -11,15 +11,18 @@ train_label_dir
 &nbsp;&nbsp;&nbsp;&nbsp;......  
 
 valid_image_dir  
-&nbsp;&nbsp;&nbsp;&nbsp;img1.jpg  
-&nbsp;&nbsp;&nbsp;&nbsp;img2.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;img3.jpg  
+&nbsp;&nbsp;&nbsp;&nbsp;img4.jpg  
 &nbsp;&nbsp;&nbsp;&nbsp;......  
 
 valid_label_dir  
-&nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img3.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;gt_img4.txt  
 &nbsp;&nbsp;&nbsp;&nbsp;...... 
+
 ## 1.2 example of label file
+The format of each line of the gt_xxx.txt file is as follows:
+x1,y1,x2,y2,x3,y3,x4,y4
 1.train:
     (1)set parameters of training in train.py file:
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"
