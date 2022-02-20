@@ -82,13 +82,13 @@ python predict.py
 # 4 Result  
 ## 4.1 with side refine  
 <p float="left">
-  <img src="result_with_side_refine/0.png" width="600" />
-  <img src="result_with_side_refine/1.png" width="600" /> 
-  <img src="result_with_side_refine/23.png" width="600" />
-</p>
+  <img src="result_with_side_refine/0.png" />
+  <img src="result_with_side_refine/1.png" /> 
+  <img src="result_with_side_refine/23.png" />
+</p>  
 ## 4.2 without side refine  
 <p float="left">
-  <img src="result_without_side_refine/0.png" width="600" />
-  <img src="result_without_side_refine/1.png" width="600" /> 
-  <img src="result_without_side_refine/23.png" width="600" />
+  <img src="result_without_side_refine/0.png" />
+  <img src="result_without_side_refine/1.png" /> 
+  <img src="result_without_side_refine/23.png" />
 </p>
