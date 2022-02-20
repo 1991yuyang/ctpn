@@ -1,10 +1,10 @@
 # 1 Data Preparation  
 ## 1.1 data directory  
-train_image_dir
+train_image_dir  
     img1.jpg  
     img2.jpg  
     ......
-train_label_dir
+train_label_dir  
     gt_img1.txt  
     gt_img2.txt  
     ......
