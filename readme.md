@@ -25,6 +25,13 @@ The format of each line of the gt_xxx.txt file is as follows:
 ```
 x1,y1,x2,y2,x3,y3,x4,y4,text_content
 ```
+the meaning of the coordinate is as follow
+```
+top left point: (x1,y1)
+top right point: (x2,y2)
+bottom right point: (x3,y3)
+bottom left point: (x4,y4)
+```
 same as the format of ICDAR_2015  
 # 2 Train:
 ## 2.1 set parameters of training in train.py file  
