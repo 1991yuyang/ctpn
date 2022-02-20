@@ -32,6 +32,7 @@ top right point: (x2,y2)
 bottom right point: (x3,y3)
 bottom left point: (x4,y4)
 ```
+it should be noted that the bounding box is not a standard rectangle, but a polygon with four sides
 same as the format of ICDAR_2015  
 # 2 Train:
 ## 2.1 set parameters of training in train.py file  
