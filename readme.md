@@ -87,8 +87,8 @@ python predict.py
   <img src="result_with_side_refine/1.png" /> 
   <img src="result_with_side_refine/23.png" />
 </p>  
-## 4.2 without side refine  
 
+## 4.2 without side refine  
 <p float="left">
   <img src="result_without_side_refine/0.png" />
   <img src="result_without_side_refine/1.png" /> 
