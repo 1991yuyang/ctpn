@@ -4,6 +4,7 @@ train_image_dir
 &nbsp;&nbsp;&nbsp;&nbsp;img1.jpg  
 &nbsp;&nbsp;&nbsp;&nbsp;img2.jpg  
 &nbsp;&nbsp;&nbsp;&nbsp;......  
+
 train_label_dir
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
