@@ -22,7 +22,7 @@ valid_label_dir
 
 ## 1.2 example of label file  
 The format of each line of the gt_xxx.txt file is as follows:  
-'''x1,y1,x2,y2,x3,y3,x4,y4'''  
+### x1,y1,x2,y2,x3,y3,x4,y4
 
 1.train:
     (1)set parameters of training in train.py file:
