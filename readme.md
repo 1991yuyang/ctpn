@@ -51,7 +51,7 @@ same as the format of ICDAR_2015
     side_ref_dist_thresh: those anchors that are less than side_ref_dist_thresh pixels from the text edge are selected for side refine task training  
     num_workers: number of thread for data loading  
     
-## 2.2 run train.py file:
+## 2.2 run train.py file
 ```
 python train.py
 ```
@@ -73,3 +73,8 @@ python train.py
     is_draw_proposals: True will draw fine-scale text proposals on result, False will not  
     is_draw_textline_bbox: True will draw text line bounding box, False will not  
     image_pth: image path for prediction, a file path or a directory path  
+## 3.3 run predict.py file  
+```
+python predict.py
+```
+# 4 Result
