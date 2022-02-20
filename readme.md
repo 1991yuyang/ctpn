@@ -8,6 +8,7 @@ train_label_dir
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img1.txt  
 &nbsp;&nbsp;&nbsp;&nbsp;gt_img2.txt  
     ......  
+
 ## 1.2 example of label file
 1.train:
     (1)set parameters of training in train.py file:
