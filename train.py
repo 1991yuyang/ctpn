@@ -95,8 +95,8 @@ def main():
     lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, verbose=True)
     for e in range(epoch):
         current_epoch = e + 1
-        train_loader = make_loader(img_batch_size, anchor_batch_size, train_img_dir, train_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers)
-        valid_loader = make_loader(img_batch_size, anchor_batch_size, valid_img_dir, valid_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers)
+        train_loader = make_loader(img_batch_size, anchor_batch_size, train_img_dir, train_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, True)
+        valid_loader = make_loader(img_batch_size, anchor_batch_size, valid_img_dir, valid_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, False)
         model = train_epoch(current_epoch, model, train_loader, criterion, optimizer)
         model, val_loss = valid_epoch(current_epoch, model, criterion, valid_loader)
         lr_sch.step(val_loss)

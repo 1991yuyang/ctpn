@@ -7,7 +7,7 @@ from get_anchors import get_anchors
 import cv2
 import torch as t
 import numba as nb
-
+from numpy import random as rd
 """
 img_dir
     img1.jpg
@@ -34,7 +34,7 @@ bottom left: x4,y4
 
 class MySet(data.Dataset):
 
-    def __init__(self, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh):
+    def __init__(self, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, is_train):
         """
 
         :param anchor_batch_size: batch size of anchors (postive+negtive)
@@ -44,16 +44,25 @@ class MySet(data.Dataset):
         :param anchor_count: number of anchor of every point in conv5 feature
         :param negative_anchor_iou_thresh: negative anchor iou threshold
         :param side_ref_dist_thresh: anchor x center to text line x center distance threshold, determin which anchor used for side refine
+        :param is_train: True use data augmentation, False not use
         """
         self.negative_anchor_iou_thresh = negative_anchor_iou_thresh
         self.side_ref_dist_thresh = side_ref_dist_thresh
         self.batch_size = anchor_batch_size
         self.img_size = img_size
+        self.is_train = is_train
         self.img_label_path = [[os.path.join(img_dir, name), os.path.join(label_dir, "gt_" + name.split(".")[0] + ".txt")] for name in os.listdir(img_dir)]
-        self.transformer = T.Compose([
-            T.Resize(img_size),
-            T.ToTensor()
-        ])
+        if is_train:
+            self.transformer = T.Compose([
+                T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.3),
+                T.Resize(img_size),
+                T.ToTensor()
+            ])
+        else:
+            self.transformer = T.Compose([
+                T.Resize(img_size),
+                T.ToTensor()
+            ])
         self.to_pil = T.ToPILImage()
         self.x_start_end_of_every_anchor = list(zip(range(0, img_size[1], 16), range(16, img_size[1] + 1, 16)))
         self.anchor_heights = get_anchors(anchor_count)
@@ -62,9 +71,11 @@ class MySet(data.Dataset):
     def __getitem__(self, index):
         img_pth, label_pth = self.img_label_path[index]
         img_pil = Image.open(img_pth)
+        orig_w, orig_h = img_pil.size
         with open(label_pth, "r", encoding="utf-8-sig") as file:
             text_bboxes = np.array([[int(i) for i in line.split(",")[:8]] for line in file.readlines()]).astype(float)  # shape: [n, 8], every line of this ndarray is a bounding box of text of current image, so the 'n' indicates there are n bounding boxes in current image
-        orig_w, orig_h = img_pil.size
+        if self.is_train:
+            img_pil, text_bboxes = self.data_aug(img_pil, text_bboxes, orig_h, orig_w)
         img_tensor = self.transformer(img_pil)
         h_ratio = orig_h / self.img_size[0]
         w_ratio = orig_w / self.img_size[1]
@@ -185,6 +196,95 @@ class MySet(data.Dataset):
 
         return iou
 
+    def random_v_flip(self, img_pil, text_boxes, orig_h):
+        text_boxes[..., 1::2] = orig_h - text_boxes[..., 1::2] - 1
+        img_pil = img_pil.transpose(Image.FLIP_TOP_BOTTOM)
+        return img_pil, text_boxes
+
+    def random_h_flip(self, img_pil, text_boxes, orig_w):
+        text_boxes[..., ::2] = orig_w - text_boxes[..., ::2] - 1
+        img_pil = img_pil.transpose(Image.FLIP_LEFT_RIGHT)
+        return img_pil, text_boxes
+
+    def random_v_shift(self, img_pil, text_boxes, orig_h):
+        shift_pixels = rd.randint(-int(orig_h / 8), int(orig_h / 8))
+        img_ndarray = np.array(img_pil)
+        padding_zero = np.zeros(shape=[np.abs(shift_pixels), img_ndarray.shape[1], 3], dtype=img_ndarray.dtype)
+        if shift_pixels == 0:
+            return img_pil, text_boxes
+        if shift_pixels > 0:
+            img_pil = Image.fromarray(np.concatenate([padding_zero, img_ndarray[:orig_h - shift_pixels, :, :]], axis=0))
+        else:
+            img_pil = Image.fromarray(np.concatenate([img_ndarray[-shift_pixels:, :, :], padding_zero], axis=0))
+        text_boxes[..., 1::2] = text_boxes[..., 1::2] + shift_pixels
+        text_boxes = text_boxes[np.logical_or(np.logical_and(np.min(text_boxes[..., 1::2], axis=1) < (orig_h - 1), np.min(text_boxes[..., 1::2] >= 0, axis=1)), np.logical_and(np.max(text_boxes[..., 1::2], axis=1) <= (orig_h - 1), np.max(text_boxes[..., 1::2] > 0, axis=1))), :]
+        text_boxes[..., 1::2] = np.where(text_boxes[..., 1::2] >= orig_h, orig_h - 1, text_boxes[..., 1::2])
+        text_boxes[..., 1::2] = np.where(text_boxes[..., 1::2] < 0, 0, text_boxes[..., 1::2])
+        return img_pil, text_boxes
+
+    def random_h_shift(self, img_pil, text_boxes, orig_w):
+        shift_pixels = rd.randint(-int(orig_w / 8), int(orig_w / 8))
+        img_ndarray = np.array(img_pil)
+        padding_zero = np.zeros(shape=[img_ndarray.shape[0], np.abs(shift_pixels), 3], dtype=img_ndarray.dtype)
+        if shift_pixels == 0:
+            return img_pil, text_boxes
+        if shift_pixels > 0:
+            img_pil = Image.fromarray(np.concatenate([padding_zero, img_ndarray[:, :orig_w - shift_pixels, :]], axis=1))
+        else:
+            img_pil = Image.fromarray(np.concatenate([img_ndarray[:, -shift_pixels:, :], padding_zero], axis=1))
+        text_boxes[..., 0::2] = text_boxes[..., 0::2] + shift_pixels
+        text_boxes = text_boxes[np.logical_or(np.logical_and(np.min(text_boxes[..., 0::2], axis=1) < (orig_w - 1),
+                                                             np.min(text_boxes[..., 0::2] >= 0, axis=1)),
+                                              np.logical_and(np.max(text_boxes[..., 0::2], axis=1) <= (orig_w - 1),
+                                                             np.max(text_boxes[..., 0::2] > 0, axis=1))), :]
+        text_boxes[..., 0::2] = np.where(text_boxes[..., 0::2] >= orig_w, orig_w - 1, text_boxes[..., 0::2])
+        text_boxes[..., 0::2] = np.where(text_boxes[..., 0::2] < 0, 0, text_boxes[..., 0::2])
+        return img_pil, text_boxes
+
+    def random_noise(self, img_pil, mean, var):
+        img_ndarray = np.array(img_pil)
+        img_norm = img_ndarray / 255
+        noise = rd.normal(mean, var ** 0.5, img_norm.shape)
+        out = img_norm + noise
+        if np.min(out) < 0:
+            low_clip = -1
+        else:
+            low_clip = 0
+        out = np.clip(out, low_clip, 1.0)
+        out = Image.fromarray((out * 255).astype(np.uint8))
+        return out
+
+    def random_scale(self, img_pil, orig_h, orig_w, text_boxes):
+        scale_factor = rd.uniform(0.6, 0.9)
+        scaled_h = int(orig_h * scale_factor)
+        scaled_w = int(orig_w * scale_factor)
+        img_pil_scaled = img_pil.resize((scaled_w, scaled_h), Image.BICUBIC)
+        text_boxes[..., ::2] = text_boxes[..., ::2] * scale_factor
+        text_boxes[..., 1::2] = text_boxes[..., 1::2] * scale_factor
+        out = np.zeros(shape=(orig_h, orig_w, 3), dtype=np.uint8)
+        x_start = rd.randint(0, orig_w - scaled_w + 1)
+        y_start = rd.randint(0, orig_h - scaled_h + 1)
+        text_boxes[..., ::2] = text_boxes[..., ::2] + x_start
+        text_boxes[..., 1::2] = text_boxes[..., 1::2] + y_start
+        out[y_start:y_start + scaled_h, x_start:x_start + scaled_w, :] = np.array(img_pil_scaled)
+        out = Image.fromarray(out)
+        return out, text_boxes
+
+    def data_aug(self, img_pil, text_boxes, orig_h, orig_w):
+        if rd.random() < 0.5:
+            img_pil, text_boxes = self.random_v_flip(img_pil, text_boxes, orig_h)
+        if rd.random() < 0.5:
+            img_pil, text_boxes = self.random_h_flip(img_pil, text_boxes, orig_w)
+        if rd.random() < 0.5:
+            img_pil, text_boxes = self.random_v_shift(img_pil, text_boxes, orig_h)
+        if rd.random() < 0.5:
+            img_pil, text_boxes = self.random_h_shift(img_pil, text_boxes, orig_w)
+        if rd.random() < 0.5:
+            img_pil, text_boxes = self.random_scale(img_pil, orig_h, orig_w, text_boxes)
+        if rd.random() < 0.5:
+            img_pil = self.random_noise(img_pil, 0.2, 0.001)
+        return img_pil, text_boxes
+
 
 def collate_fn(batch):
     imgs = []
@@ -200,14 +300,15 @@ def collate_fn(batch):
     return imgs, cls_labels, reg_labels, side_ref_labels
 
 
-def make_loader(img_batch_size, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers):
-    loader = iter(data.DataLoader(MySet(anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh), batch_size=img_batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn, num_workers=num_workers))
+def make_loader(img_batch_size, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, is_train):
+    loader = iter(data.DataLoader(MySet(anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, is_train), batch_size=img_batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn, num_workers=num_workers))
     return loader
 
 
 if __name__ == "__main__":
-    s = MySet(128, r"/home/yuyang/data/ICDAR_2015/train_image", r"/home/yuyang/data/ICDAR_2015/train_label", (256, 1024), 10, 0.5, 20)
-    loader = make_loader(4, 128, r"/home/yuyang/data/ICDAR_2015/train_image", r"/home/yuyang/data/ICDAR_2015/train_label", (256, 1024), 10, 0.5, 20)
+    s = MySet(128, r"/home/yuyang/data/ICDAR_2015/train_image", r"/home/yuyang/data/ICDAR_2015/train_label", (256, 1024), 10, 0.5, 20, True)
+    loader = make_loader(4, 128, r"/home/yuyang/data/ICDAR_2015/train_image", r"/home/yuyang/data/ICDAR_2015/train_label", (256, 1024), 10, 0.5, 20, 4, True)
     for imgs, cls_labels, reg_labels, side_ref_labels in loader:
-        pass
+        input()
+
 
