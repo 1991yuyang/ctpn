@@ -220,4 +220,3 @@ if __name__ == "__main__":
     textConn = TextProposalConnectorOriented()
     text = textConn.get_text_lines(np.random.randint(0, 10, (5, 4)), np.random.random(2), [512, 512])
     print(text)
-

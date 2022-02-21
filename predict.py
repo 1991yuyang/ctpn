@@ -15,12 +15,12 @@ anchor_count = 10
 backbone_type = "resnet34"
 img_size = (640, 640)
 use_best_model = True
-cls_score_thresh = 0.7
+cls_score_thresh = 0.02
 nms_iou_thresh = 0.15
 result_output_dir = r"result"
 is_draw_proposals = False
 is_draw_textline_bbox = True
-image_pth = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
+image_pth = r"/home/yuyang/data/id_card/train_image"
 transformer = T.Compose([
     T.Resize(img_size),
     T.ToTensor()
@@ -151,4 +151,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

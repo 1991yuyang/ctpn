@@ -18,16 +18,17 @@ patience = 50
 weight_decay = 0.00001
 lamda_1 = 1
 lamda_2 = 2
-print_step = 3
+print_step = 1
 anchor_count = 10
 negative_anchor_iou_thresh = 0.5
 side_ref_dist_thresh = 16
-num_workers = 4
+num_workers = 2
 train_side_ref = True
-train_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
-train_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
-valid_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
-valid_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
+data_aug_level = "l"
+train_img_dir = r"/home/yuyang/data/id_card/train_image"
+train_label_dir = r"/home/yuyang/data/id_card/train_label"
+valid_img_dir = r"/home/yuyang/data/id_card/train_image"
+valid_label_dir = r"/home/yuyang/data/id_card/train_label"
 best_valid_loss = float("inf")
 
 
@@ -95,8 +96,8 @@ def main():
     lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, verbose=True)
     for e in range(epoch):
         current_epoch = e + 1
-        train_loader = make_loader(img_batch_size, anchor_batch_size, train_img_dir, train_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, True)
-        valid_loader = make_loader(img_batch_size, anchor_batch_size, valid_img_dir, valid_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, False)
+        train_loader = make_loader(img_batch_size, anchor_batch_size, train_img_dir, train_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, True, data_aug_level)
+        valid_loader = make_loader(img_batch_size, anchor_batch_size, valid_img_dir, valid_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, False, data_aug_level)
         model = train_epoch(current_epoch, model, train_loader, criterion, optimizer)
         model, val_loss = valid_epoch(current_epoch, model, criterion, valid_loader)
         lr_sch.step(val_loss)

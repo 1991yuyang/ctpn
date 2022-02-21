@@ -44,7 +44,7 @@ class CTPN(nn.Module):
 
     def forward(self, x):
         feature = self.feat_extr(x)
-        rpn_cls = self.rpn_class(feature).permute(dims=[0, 2, 3, 1])  # [N, H, W, anchor_count]
+        rpn_cls = self.rpn_class(feature).permute(dims=[0, 2, 3, 1])  # [N, H, W, 2 * anchor_count]
         rpn_reg = self.rpn_regress(feature).permute(dims=[0, 2, 3, 1])  # [N, H, W, anchor_count * 2]
         side_ref = self.side_refine(feature).permute(dims=[0, 2, 3, 1]).contiguous() # [N, H, W, anchor_count]
         return rpn_cls, rpn_reg, side_ref
@@ -55,4 +55,3 @@ if __name__ == "__main__":
     model = CTPN(anchor_count=10, backbone_type="resnet18")
     rpn_cls, rpn_reg, side_ref = model(d)
     # print(rpn_reg.squeeze(0)[[1, 2, 3], [2, 3, 4], [0, 15, 19]].size())
-
