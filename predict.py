@@ -17,13 +17,10 @@ img_size = (640, 640)
 use_best_model = True
 cls_score_thresh = 0.7
 nms_iou_thresh = 0.15
-result_output_dir = r"result_without_side_refine"
+result_output_dir = r"result"
 is_draw_proposals = False
 is_draw_textline_bbox = True
 image_pth = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
-if os.path.exists(result_output_dir):
-    shutil.rmtree(result_output_dir)
-os.mkdir(result_output_dir)
 transformer = T.Compose([
     T.Resize(img_size),
     T.ToTensor()
@@ -54,7 +51,20 @@ def load_one_image(img_pth):
     return image_tensor, image_pil
 
 
-def predict_one_image(model, image_tensor, image_pil, result_save_name):
+def predict_one_image(image_tensor, image_pil, result_save_name):
+    """
+
+    :param image_tensor: image tensor
+    :param image_pil: original PIL image
+    :param result_save_name: result file name, if set None will not save result
+    :return: text_on_orig_image: text line bounding box ndarray, format is as follow:
+    [
+    [x11,y11,x12,y12,x13,y13,x14,y14,score1],
+    [x21,y21,x22,y22,x23,y23,x24,y24,score2],
+    ....
+    ]
+    meaning of every element of the ndarray is [top left point, top right point, bottom left point, bottom right point, score]
+    """
     with t.no_grad():
         rpn_cls, rpn_reg, side_ref = model(image_tensor)
     rpn_cls = rpn_cls.squeeze(0).view((rpn_cls.size()[1], rpn_cls.size()[2], -1, 2)).cpu()  # [H, W, anchor_count * 2]
@@ -87,6 +97,7 @@ def predict_one_image(model, image_tensor, image_pil, result_save_name):
         predict_proposal = [x_start, y_start, x_end, y_end, pos_prob, side_ref_of_current_proposal]
         all_predict_proposals.append(predict_proposal)
     all_predict_proposals = np.array(all_predict_proposals)
+    text_on_orig_image = np.array([])
     if all_predict_proposals.tolist():
         nms_keep_index = ops.nms(t.from_numpy(all_predict_proposals[:, :4]), t.from_numpy(all_predict_proposals[:, 4]), nms_iou_thresh)
         all_predict_proposals_after_nms = all_predict_proposals[nms_keep_index, :]
@@ -115,23 +126,29 @@ def predict_one_image(model, image_tensor, image_pil, result_save_name):
         if is_draw_proposals:
             for bbox, pos_prob_of_bbox in zip(all_predict_boxes_on_resized_image, all_predict_pos_prob):
                 orig_img_draw.rectangle(((int(bbox[0] * w_ratio), int(bbox[1] * h_ratio)), (int(bbox[2] * w_ratio), int(bbox[3] * h_ratio))), outline=int(255 * pos_prob_of_bbox / 0.01), width=4, fill=None)
-    image_pil.save(os.path.join(result_output_dir, result_save_name))
+    if result_save_name:
+        image_pil.save(os.path.join(result_output_dir, result_save_name))
         #####################################
+    return text_on_orig_image
 
 
 def main():
+    if os.path.exists(result_output_dir):
+        shutil.rmtree(result_output_dir)
+    os.mkdir(result_output_dir)
     if os.path.isdir(image_pth):
         index_imgpths = [[i, os.path.join(image_pth, name)] for i, name in enumerate(os.listdir(image_pth))]
         for i, imgpth in index_imgpths:
             print(imgpth)
             result_save_name = "%d.png" % (i,)
             image_tensor, image_pil = load_one_image(imgpth)
-            predict_one_image(model, image_tensor, image_pil, result_save_name)
+            predict_one_image(image_tensor, image_pil, result_save_name)
     if os.path.isfile(image_pth):
         print(image_pth)
         image_tensor, image_pil = load_one_image(image_pth)
-        predict_one_image(model, image_tensor, image_pil, "result.png")
+        predict_one_image(image_tensor, image_pil, "result.png")
 
 
 if __name__ == "__main__":
     main()
+

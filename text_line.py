@@ -206,9 +206,9 @@ class TextProposalConnectorOriented:
             text_recs[index, 1] = y1 if y1 > 0 else 0
             text_recs[index, 2] = x2 if x2 < im_size[1] else im_size[1] - 1
             text_recs[index, 3] = y2 if y2 > 0 else 0
-            text_recs[index, 4] = x3 if x3 < im_size[1] else im_size[1] - 1
+            text_recs[index, 4] = x3 if x3 > 0 else 0
             text_recs[index, 5] = y3 if y3 < im_size[0] else im_size[0] - 1
-            text_recs[index, 6] = x4 if x4 > 0 else 0
+            text_recs[index, 6] = x4 if x4 < im_size[1] else im_size[1] - 1
             text_recs[index, 7] = y4 if y4 < im_size[0] else im_size[0] - 1
             text_recs[index, 8] = line[4]
             index = index + 1
@@ -220,3 +220,4 @@ if __name__ == "__main__":
     textConn = TextProposalConnectorOriented()
     text = textConn.get_text_lines(np.random.randint(0, 10, (5, 4)), np.random.random(2), [512, 512])
     print(text)
+
