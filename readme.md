@@ -57,6 +57,7 @@ it should be noted that the bounding box of a text line is not a standard rectan
     negative_anchor_iou_thresh: iou threshold, to define a negative anchor  
     side_ref_dist_thresh: those anchors that are less than side_ref_dist_thresh pixels from the text edge are selected for side refine task training  
     num_workers: number of thread for data loading  
+    data_aug_level: "h", "m" or "l". "h" indicates high data augmentation, "m" indicates medium data augmentation, "l" indicates low data augmentation  
     
 ## 2.2 run train.py file
 ```
