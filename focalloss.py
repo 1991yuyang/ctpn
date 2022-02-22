@@ -29,4 +29,3 @@ if __name__ == "__main__":
     d = t.randn(3, 2)
     target = t.tensor([0, 1, 0])
     l = loss(d, target)
-    print(l)
