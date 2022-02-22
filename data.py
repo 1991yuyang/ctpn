@@ -6,7 +6,7 @@ import numpy as np
 from get_anchors import get_anchors
 import cv2
 import torch as t
-import numba as nb
+from collections import OrderedDict
 from numpy import random as rd
 """
 img_dir
@@ -88,9 +88,9 @@ class MySet(data.Dataset):
         # split every text line ground truth and get a sequence of ground truth of fine-scale text proposal whose width is 16 pixel
         text_proposals_of_every_text_line = []
         positive_anchors_of_every_text_line = []
-        cls_label = {}  # format of every item of cls_label is "(i, j, anchor_index): text_mark", i, j is the localtion of pixel of conv5 feature, anchor_index is the index of anchors of current pixel, text_mark is 1 if this anchor has text, otherwise 0
-        reg_label = {}  # format of every item of reg_label is "(i, j, anchor_index): [vc*, vh*]", the meaning of i, j and anchor index is same with cls_label, vc* and vh* is the y coordinage offset, same with it in paper
-        side_ref_label = {}  # format of every item of reg_label is "(i, j, anchor_index): o*", the meaning of i, j and anchor index is same with cls_label, o* is the x coordinage offset, same with it in paper
+        cls_label = OrderedDict()  # format of every item of cls_label is "(i, j, anchor_index): text_mark", i, j is the localtion of pixel of conv5 feature, anchor_index is the index of anchors of current pixel, text_mark is 1 if this anchor has text, otherwise 0
+        reg_label = OrderedDict()  # format of every item of reg_label is "(i, j, anchor_index): [vc*, vh*]", the meaning of i, j and anchor index is same with cls_label, vc* and vh* is the y coordinage offset, same with it in paper
+        side_ref_label = OrderedDict()  # format of every item of reg_label is "(i, j, anchor_index): o*", the meaning of i, j and anchor index is same with cls_label, o* is the x coordinage offset, same with it in paper
         total_posotive_anchor_count = 0
         for box in text_bboxes:
             mask = np.zeros(shape=self.img_size, dtype=np.uint8)
