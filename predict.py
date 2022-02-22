@@ -20,7 +20,7 @@ nms_iou_thresh = 0.15
 result_output_dir = r"result"
 is_draw_proposals = False
 is_draw_textline_bbox = True
-image_pth = r"/home/yuyang/data/id_card/train_image"
+image_pth = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
 transformer = T.Compose([
     T.Resize(img_size),
     T.ToTensor()
