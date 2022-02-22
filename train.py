@@ -25,6 +25,9 @@ side_ref_dist_thresh = 16
 num_workers = 2
 train_side_ref = True
 data_aug_level = "l"
+use_focal_loss = True
+focal_loss_alpha = 0.25
+focal_loss_gamma = 2
 train_img_dir = r"/home/yuyang/data/id_card/train_image"
 train_label_dir = r"/home/yuyang/data/id_card/train_label"
 valid_img_dir = r"/home/yuyang/data/id_card/train_image"
@@ -91,7 +94,7 @@ def main():
     model = CTPN(anchor_count, backbone_type)
     model = nn.DataParallel(module=model, device_ids=device_ids)
     model = model.cuda(0)
-    criterion = LossFunc(lamda_1, lamda_2, train_side_ref).cuda(0)
+    criterion = LossFunc(lamda_1, lamda_2, train_side_ref, use_focal_loss, focal_loss_gamma, focal_loss_alpha).cuda(0)
     optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
     lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, verbose=True)
     for e in range(epoch):

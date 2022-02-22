@@ -1,13 +1,17 @@
 from torch import nn
 import numpy as np
 import torch as t
+from focalloss import FocalLoss
 
 
 class LossFunc(nn.Module):
 
-    def __init__(self, lamda1, lamda2, train_side_ref):
+    def __init__(self, lamda1, lamda2, train_side_ref, use_focal_loss, focal_loss_gamma=2, focal_loss_alpha=0.25):
         super(LossFunc, self).__init__()
-        self.ce = nn.CrossEntropyLoss()
+        if use_focal_loss:
+            self.ce = FocalLoss(alpha=focal_loss_alpha, gamma=focal_loss_gamma)
+        else:
+            self.ce = nn.CrossEntropyLoss()
         self.smooth_l1 = nn.SmoothL1Loss()
         self.lamda1 = lamda1
         self.lamda2 = lamda2
