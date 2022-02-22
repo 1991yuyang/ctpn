@@ -58,6 +58,9 @@ it should be noted that the bounding box of a text line is not a standard rectan
     side_ref_dist_thresh: those anchors that are less than side_ref_dist_thresh pixels from the text edge are selected for side refine task training  
     num_workers: number of thread for data loading  
     data_aug_level: "h", "m" or "l". "h" indicates high data augmentation, "m" indicates medium data augmentation, "l" indicates low data augmentation  
+    use_focal_loss: True will use focal loss, False will not  
+    focal_loss_alpha: parameter of focal loss  
+    focal_loss_gamma: parameter of focal loss  
     
 ## 2.2 run train.py file
 ```
