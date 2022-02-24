@@ -103,7 +103,8 @@ python predict.py
 
 # 4 Result  
 ## 4.1 training loss  
-<img src="" />
+<img src="Selection_045.png" />  
+
 ## 4.2 with side refine  
 <p float="left">
   <img src="result_with_side_refine/0.png" />
