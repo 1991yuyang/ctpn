@@ -39,7 +39,7 @@ before start visdom, you should install it
 ```
 pip install visdom
 ```
-then start it
+then start it in your terminal
 ```
 python -m visdom.server
 ```
