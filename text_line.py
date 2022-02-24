@@ -71,11 +71,17 @@ class TextProposalGraphBuilder:
 
     def meet_v_iou(self, index1, index2):
         def overlaps_v(index1, index2):
-            h1 = self.heights[index1]
-            h2 = self.heights[index2]
+            # h1 = self.heights[index1]
+            # h2 = self.heights[index2]
+            # union = min(h1, h2)
             y0 = max(self.text_proposals[index2][1], self.text_proposals[index1][1])
             y1 = min(self.text_proposals[index2][3], self.text_proposals[index1][3])
-            return max(0, y1 - y0 + 1) / min(h1, h2)
+            ################
+            v_end = max(self.text_proposals[index2][3], self.text_proposals[index1][3])
+            v_start = min(self.text_proposals[index2][1], self.text_proposals[index1][1])
+            union = v_end - v_start
+            ################
+            return max(0, y1 - y0 + 1) / union
 
         def size_similarity(index1, index2):
             h1 = self.heights[index1]

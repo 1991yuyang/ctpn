@@ -15,8 +15,8 @@ class FocalLoss(nn.Module):
         target = target.view(-1)
         positive_index = target == 1
         negtive_index = target == 0
-        pos_prob_pred = output[positive_index, 1:]
-        neg_prob_pred = output[negtive_index, 0:1]
+        pos_prob_pred = output[positive_index, 1]
+        neg_prob_pred = output[negtive_index, 0]
         pos_loss = t.sum(-self.alpha * t.pow((1.0 - pos_prob_pred), self.gamma) * t.log(pos_prob_pred))
         neg_loss = t.sum(-(1.0 - self.alpha) * t.pow((1.0 - neg_prob_pred), self.gamma) * t.log(neg_prob_pred))
         total_loss = pos_loss + neg_loss

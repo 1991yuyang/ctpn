@@ -12,11 +12,11 @@ from copy import deepcopy
 import shutil
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 anchor_count = 10
-backbone_type = "resnet34"
+backbone_type = "resnet18"
 img_size = (640, 640)
 use_best_model = True
-cls_score_thresh = 0.2
-nms_iou_thresh = 0.15
+cls_score_thresh = 0.7
+nms_iou_thresh = 0.3
 result_output_dir = r"result"
 is_draw_proposals = False
 is_draw_textline_bbox = True

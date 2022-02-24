@@ -55,11 +55,17 @@ class MySet(data.Dataset):
         self.is_train = is_train
         self.img_label_path = [[os.path.join(img_dir, name), os.path.join(label_dir, "gt_" + name.split(".")[0] + ".txt")] for name in os.listdir(img_dir)]
         if is_train:
-            self.transformer = T.Compose([
-                T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.3),
-                T.Resize(img_size),
-                T.ToTensor()
-            ])
+            if self.data_aug_leve:
+                self.transformer = T.Compose([
+                    T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.3),
+                    T.Resize(img_size),
+                    T.ToTensor()
+                ])
+            else:
+                self.transformer = T.Compose([
+                    T.Resize(img_size),
+                    T.ToTensor()
+                ])
         else:
             self.transformer = T.Compose([
                 T.Resize(img_size),
@@ -146,6 +152,9 @@ class MySet(data.Dataset):
             positive_anchors_of_every_text_line.append(positive_anchors_of_current_text_line)
             text_proposals_of_every_text_line.append(proposals_of_current_text_line)
         # negative_anchors = []
+        total_negative_anchor_count = self.batch_size - total_posotive_anchor_count
+        negative_anchor_count = 0
+        stop_add_neg_anchor = False
         for i in range(self.img_size[1] // 16):
             for j in range(self.img_size[0] // 16):
                 anchors = self.get_i_j_anchor(i, j)
@@ -162,6 +171,14 @@ class MySet(data.Dataset):
                     if negative_mark:
                         # negative_anchors.append([i, j, anchor_index, anchor])
                         cls_label[(i, j, anchor_index)] = 0
+                        negative_anchor_count += 1
+                        stop_add_neg_anchor = negative_anchor_count == total_negative_anchor_count
+                    if stop_add_neg_anchor:
+                        break
+                if stop_add_neg_anchor:
+                    break
+            if stop_add_neg_anchor:
+                break
         return img_tensor.unsqueeze(0), cls_label, reg_label, side_ref_label
 
     def __len__(self):
@@ -273,6 +290,8 @@ class MySet(data.Dataset):
         return out, text_boxes
 
     def data_aug(self, img_pil, text_boxes, orig_h, orig_w):
+        if not self.data_aug_leve:
+            return img_pil, text_boxes
         if rd.random() < 0.5:
             img_pil, text_boxes = self.random_v_flip(img_pil, text_boxes, orig_h)
         if rd.random() < 0.5:
