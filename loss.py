@@ -37,15 +37,23 @@ class LossFunc(nn.Module):
             cls_output_neg_prob = cls_output[cls_point_index[..., 1], cls_point_index[..., 0], cls_point_index[..., 2] * 2].view((-1, 1))
             cls_output_ = t.cat([cls_output_neg_prob, cls_output_pos_prob], dim=1)
             cls_target_ = t.tensor(list(cls_target.values())).type(t.LongTensor).cuda(0)
-            reg_output_vc = reg_output[reg_point_index[..., 1], reg_point_index[..., 0], reg_point_index[..., 2] * 2]
-            reg_output_vh = reg_output[reg_point_index[..., 1], reg_point_index[..., 0], reg_point_index[..., 2] * 2 + 1]
-            reg_target_vc = t.from_numpy(np.array(list(reg_target.values()))[..., 0]).type(t.FloatTensor).cuda(0)
-            reg_target_vh = t.from_numpy(np.array(list(reg_target.values()))[..., 1]).type(t.FloatTensor).cuda(0)
-            side_ref_output_ = side_ref_output[side_ref_index[..., 1], side_ref_index[..., 0], side_ref_index[..., 2]]
-            side_ref_target_ = t.tensor(list(side_ref_target.values())).type(t.FloatTensor).cuda(0)
+            if reg_point_index.tolist():
+                reg_output_vc = reg_output[reg_point_index[..., 1], reg_point_index[..., 0], reg_point_index[..., 2] * 2]
+                reg_output_vh = reg_output[reg_point_index[..., 1], reg_point_index[..., 0], reg_point_index[..., 2] * 2 + 1]
+                reg_target_vc = t.from_numpy(np.array(list(reg_target.values()))[..., 0]).type(t.FloatTensor).cuda(0)
+                reg_target_vh = t.from_numpy(np.array(list(reg_target.values()))[..., 1]).type(t.FloatTensor).cuda(0)
+            if side_ref_index.tolist():
+                side_ref_output_ = side_ref_output[side_ref_index[..., 1], side_ref_index[..., 0], side_ref_index[..., 2]]
+                side_ref_target_ = t.tensor(list(side_ref_target.values())).type(t.FloatTensor).cuda(0)
             cls_loss = self.ce(cls_output_, cls_target_)
-            reg_loss = self.smooth_l1(t.cat([reg_output_vc, reg_output_vh], dim=0), t.cat([reg_target_vc, reg_target_vh], dim=0))
-            side_ref_loss = self.smooth_l1(side_ref_output_, side_ref_target_)
+            if reg_point_index.tolist():
+                reg_loss = self.smooth_l1(t.cat([reg_output_vc, reg_output_vh], dim=0), t.cat([reg_target_vc, reg_target_vh], dim=0))
+            else:
+                reg_loss = 0
+            if side_ref_index.tolist():
+                side_ref_loss = self.smooth_l1(side_ref_output_, side_ref_target_)
+            else:
+                side_ref_loss = 0
             if self.train_side_ref:
                 total_loss = cls_loss + self.lamda1 * reg_loss + self.lamda2 * side_ref_loss
             else:
