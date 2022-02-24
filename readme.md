@@ -102,7 +102,9 @@ python predict.py
 ```
 
 # 4 Result  
-## 4.1 with side refine  
+## 4.1 training loss  
+<img src="" />
+## 4.2 with side refine  
 <p float="left">
   <img src="result_with_side_refine/0.png" />
   <img src="result_with_side_refine/1.png" /> 
