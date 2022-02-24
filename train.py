@@ -4,12 +4,13 @@ from data import make_loader
 import os
 import torch as t
 from loss import LossFunc
+from visdom import Visdom
 CUDA_VISIBLE_DEVICES = "0"
 os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_VISIBLE_DEVICES
 device_ids = list(range(len(CUDA_VISIBLE_DEVICES.split(","))))
 img_size = (640, 640)
 backbone_type = "resnet18"  # "resnet18" or "resnet34" or "resnet50"
-epoch = 1000
+epoch = 500
 anchor_batch_size = 128  # anchor_batch_size / 2 positive anchor and anchor_batch_size / 2 negative anchor selected from one image
 img_batch_size = 4  # image batch size
 lr = 0.001
@@ -24,18 +25,22 @@ negative_anchor_iou_thresh = 0.5
 side_ref_dist_thresh = 16
 num_workers = 4
 train_side_ref = True
-data_aug_level = None
+data_aug_level = "l"
 use_focal_loss = True
-focal_loss_alpha = 0.1
+focal_loss_alpha = 0.25
 focal_loss_gamma = 2
 train_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
 train_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
 valid_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
 valid_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
 best_valid_loss = float("inf")
+train_loss_window = Visdom()
+valid_loss_window = Visdom()
+total_step = 1
 
 
 def train_epoch(current_epoch, model, train_loader, criterion, optimizer):
+    global total_step
     model.train()
     step = len(train_loader)
     current_step = 1
@@ -51,7 +56,9 @@ def train_epoch(current_epoch, model, train_loader, criterion, optimizer):
                 print("epoch:%d/%d, step:%d/%d, train_total_loss:%.5f, train_cls_loss:%.5f, train_reg_loss:%.5f, train_side_ref_loss:%.5f" % (current_epoch, epoch, current_step, step, train_total_loss.item(), train_cls_loss.item(), train_reg_loss.item(), train_side_ref_loss.item()))
             else:
                 print("epoch:%d/%d, step:%d/%d, train_total_loss:%.5f, train_cls_loss:%.5f, train_reg_loss:%.5f" % (current_epoch, epoch, current_step, step, train_total_loss.item(), train_cls_loss.item(), train_reg_loss.item()))
+            train_loss_window.line([train_total_loss.item()], [total_step], win="train loss", update="append", opts=dict(title="train_loss"))
         current_step += 1
+        total_step += 1
     return model
 
 
@@ -82,6 +89,7 @@ def valid_epoch(current_epoch, model, criterion, valid_loader):
         print("saving best model......")
         best_valid_loss = avg_valid_total_loss
         t.save(model.state_dict(), "best.pth")
+    valid_loss_window.line([avg_valid_total_loss], [current_epoch], win="valid loss", update="append", opts=dict(title="valid_loss"))
     print("###############valid epoch:%d################" % (current_epoch,))
     if train_side_ref:
         print("valid_total_loss:%.5f, valid_cls_loss:%.5f, valid_reg_loss:%.5f, valid_side_ref_loss:%.5f" % (avg_valid_total_loss, avg_valid_cls_loss, avg_valid_reg_loss, avg_valid_side_ref_loss))

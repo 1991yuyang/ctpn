@@ -8,6 +8,7 @@ import cv2
 import torch as t
 from collections import OrderedDict
 from numpy import random as rd
+import random
 """
 img_dir
     img1.jpg
@@ -137,7 +138,7 @@ class MySet(data.Dataset):
                                 max_iou_j = j
                                 max_iou_anchor = anchor
                                 max_iou_anchor_index = anchor_index
-                    if max_iou >= self.negative_anchor_iou_thresh:
+                    if max_iou >= self.negative_anchor_iou_thresh and (max_iou_i, max_iou_j, max_iou_anchor_index) not in cls_label:
                         cls_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = 1
                         reg_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = [((current_proposal[1] + current_proposal[3]) / 2 - (max_iou_anchor[1] + max_iou_anchor[3]) / 2) / (max_iou_anchor[3] - max_iou_anchor[1]), np.log((current_proposal[3] - current_proposal[1]) / (max_iou_anchor[3] - max_iou_anchor[1]))]
                         positive_anchors_of_current_text_line.append([max_iou_i, max_iou_j, max_iou_anchor_index, max_iou_anchor, current_proposal])
@@ -155,10 +156,16 @@ class MySet(data.Dataset):
         total_negative_anchor_count = self.batch_size - total_posotive_anchor_count
         negative_anchor_count = 0
         stop_add_neg_anchor = False
-        for i in range(self.img_size[1] // 16):
-            for j in range(self.img_size[0] // 16):
+        col_indexs = list(range(self.img_size[1] // 16))
+        row_indexs = list(range(self.img_size[0] // 16))
+        random.shuffle(col_indexs)
+        random.shuffle(row_indexs)
+        for i in col_indexs:
+            for j in row_indexs:
                 anchors = self.get_i_j_anchor(i, j)
                 for anchor_index, anchor in enumerate(anchors):
+                    if (i, j, anchor_index) in cls_label:
+                        continue
                     negative_mark = True
                     for proposal_line in text_proposals_of_every_text_line:
                         for proposal in proposal_line:
