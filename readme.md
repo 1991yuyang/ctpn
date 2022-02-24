@@ -34,7 +34,17 @@ bottom left point: (x4,y4)
 ```
 it should be noted that the bounding box of a text line is not a standard rectangle, but a polygon with four sides, in the same format as label file of ICDAR_2015 dataset  
 # 2 Train:
-## 2.1 set parameters of training in train.py file  
+## 2.1 start the visdom  
+before start visdom, you should install it
+```
+pip install visdom
+```
+then start it
+```
+python -m visdom.server
+```
+
+## 2.2 set parameters of training in train.py file  
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"  
     img_size: image size like (H, W)  
     backbone_type: "resnet18", "resnet34" or "resnet50", specify the backbone of model  
@@ -62,7 +72,7 @@ it should be noted that the bounding box of a text line is not a standard rectan
     focal_loss_alpha: parameter of focal loss, slightly modify the strenght of mining of positive hard sample  
     focal_loss_gamma: parameter of focal loss, control the threnght of mining of hard sample  
     
-## 2.2 run train.py file
+## 2.3 run train.py file
 ```
 python train.py
 ```
