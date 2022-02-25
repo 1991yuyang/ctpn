@@ -47,7 +47,7 @@ python -m visdom.server
 ## 2.2 set parameters of training in train.py file  
     CUDA_VISIBLE_DEVICES: the gpu used in training, like "0,1"  
     img_size: image size like (H, W)  
-    backbone_type: "resnet18", "resnet34" or "resnet50", specify the backbone of model  
+    backbone_type: "resnet18", "resnet34", "resnet50" or "vgg", specify the backbone of model  
     epoch: training epoch  
     anchor batch size: how many anchors selected from one image  
     image batch size: how many images send to model every training step  
