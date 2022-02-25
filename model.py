@@ -14,7 +14,12 @@ class FeatureExtractor(nn.Module):
             self.spatial_feature_extractor = nn.Sequential(*list(models.resnet34(pretrained=True).children())[:-3])
         if backbone_type == "resnet50":
             self.spatial_feature_extractor = nn.Sequential(*list(models.resnet50(pretrained=True).children())[:-3])
-        out_channels_ = list(list(self.spatial_feature_extractor.children())[-1].children())[-1].conv1.in_channels
+        if backbone_type == "vgg":
+            self.spatial_feature_extractor = nn.Sequential(*list(models.vgg16(pretrained=True).features.children())[:-1])
+        if backbone_type == "vgg":
+            out_channels_ = 512
+        else:
+            out_channels_ = list(list(self.spatial_feature_extractor.children())[-1].children())[-1].conv1.in_channels
         self.brnn = nn.GRU(out_channels_ * 3 * 3, 128, bidirectional=True, batch_first=True)
         self.fc = nn.Sequential(
             nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=1, padding=0),
@@ -52,6 +57,6 @@ class CTPN(nn.Module):
 
 if __name__ == "__main__":
     d = t.randn(1, 3, 512, 256)
-    model = CTPN(anchor_count=10, backbone_type="resnet18")
+    model = CTPN(anchor_count=10, backbone_type="vgg")
     rpn_cls, rpn_reg, side_ref = model(d)
     # print(rpn_reg.squeeze(0)[[1, 2, 3], [2, 3, 4], [0, 15, 19]].size())
