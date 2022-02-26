@@ -21,11 +21,7 @@ class FeatureExtractor(nn.Module):
         else:
             out_channels_ = list(list(self.spatial_feature_extractor.children())[-1].children())[-1].conv1.in_channels
         self.brnn = nn.GRU(out_channels_ * 3 * 3, 128, bidirectional=True, batch_first=True)
-        self.fc = nn.Sequential(
-            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=1, padding=0),
-            nn.BatchNorm2d(num_features=512),
-            nn.ReLU()
-        )
+        self.fc = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=1, padding=0)
 
     def forward(self, x):
         out = self.spatial_feature_extractor(x)  # [N, C, H, W]
