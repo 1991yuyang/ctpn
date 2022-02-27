@@ -21,7 +21,11 @@ class FeatureExtractor(nn.Module):
         else:
             out_channels_ = list(list(self.spatial_feature_extractor.children())[-1].children())[-1].conv1.in_channels
         self.brnn = nn.GRU(out_channels_ * 3 * 3, 128, bidirectional=True, batch_first=True)
-        self.fc = nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=1, padding=0)
+        self.fc = nn.Sequential(
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=1, stride=1, padding=0, bias=False),
+            nn.BatchNorm2d(num_features=512),
+            nn.LeakyReLU(0.15)
+        )
 
     def forward(self, x):
         out = self.spatial_feature_extractor(x)  # [N, C, H, W]
@@ -42,6 +46,7 @@ class CTPN(nn.Module):
         self.rpn_class = nn.Conv2d(in_channels=512, out_channels=anchor_count * 2, kernel_size=1, stride=1, padding=0)  # 用于预测每个anchor有文字/没有文字的概率
         self.rpn_regress = nn.Conv2d(in_channels=512, out_channels=2 * anchor_count, kernel_size=1, stride=1, padding=0)  # * 2 表示只预测bounding box的(y, h), bounding box的宽度固定为16不需要学习
         self.side_refine = nn.Conv2d(in_channels=512, out_channels=anchor_count, kernel_size=1, stride=1, padding=0)  # 用于文本框边缘调整
+        self.init_weight_()
 
     def forward(self, x):
         feature = self.feat_extr(x)
@@ -50,9 +55,23 @@ class CTPN(nn.Module):
         side_ref = self.side_refine(feature).permute(dims=[0, 2, 3, 1]).contiguous() # [N, H, W, anchor_count]
         return rpn_cls, rpn_reg, side_ref
 
+    def init_weight_(self):
+        self.rpn_class.weight.data.normal_(0, 0.01)
+        self.rpn_class.bias.data.zero_()
+        self.rpn_regress.weight.data.normal_(0, 0.01)
+        self.rpn_regress.bias.data.zero_()
+        self.side_refine.weight.data.normal_(0, 0.01)
+        self.side_refine.bias.data.zero_()
+        for n, w in self.feat_extr.brnn.named_parameters():
+            if n.startswith("weight"):
+                w.data.normal_(0, 0.01)
+            else:
+                w.data.zero_()
+
 
 if __name__ == "__main__":
     d = t.randn(1, 3, 512, 256)
     model = CTPN(anchor_count=10, backbone_type="vgg")
     rpn_cls, rpn_reg, side_ref = model(d)
     # print(rpn_reg.squeeze(0)[[1, 2, 3], [2, 3, 4], [0, 15, 19]].size())
+
