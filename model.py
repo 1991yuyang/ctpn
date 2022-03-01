@@ -30,7 +30,7 @@ class FeatureExtractor(nn.Module):
     def forward(self, x):
         out = self.spatial_feature_extractor(x)  # [N, C, H, W]
         N, _, H, W = out.size()
-        slide_window_result = self.unfold(out)  # [N, C * 3 * 3, H * W]
+        slide_window_result = self.unfold(out).permute(dims=[0, 2, 1]).contiguous()  # [N, H * W, C * 3 * 3]
         first_reshape_result = slide_window_result.view((slide_window_result.size()[0] * H, W, -1))  # [N * H, W, C * 3 * 3]
         lstm_result, _ = self.brnn(first_reshape_result)
         second_reshape_result = lstm_result.contiguous().view((N, -1, H, W))  # [N, 256, H, W]
