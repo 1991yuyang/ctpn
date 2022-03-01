@@ -49,8 +49,8 @@ python -m visdom.server
     img_size: image size like (H, W)  
     backbone_type: "resnet18", "resnet34", "resnet50" or "vgg", specify the backbone of model  
     epoch: training epoch  
-    anchor batch size: how many anchors selected from one image  
-    image batch size: how many images send to model every training step  
+    anchor_batch_size: how many anchors selected from one image  
+    image_batch_size: how many images send to model every training step  
     lr: initial learning rate  
     lr_de_rate: lr reduce rate, new_lr = lr_de_rate * old_lr  
     patience: number of epochs with no improvement after which learning rate will be reduced  
@@ -76,7 +76,7 @@ python -m visdom.server
 ```
 python train.py
 ```
-due to limited hardware resources, I only used 37 images from IDCAR_2015 for training
+due to limited hardware resources, I only used 37 images from IDCAR_2015 for training, it should be noted that different hyperparameters need to be adjusted in different scenarios, for example, if underfitting occurs, you can increase the anchor_batch_size.
 
 # 3 Predict  
 ## 3.1 set the parameter of text line connector in TextLineCfg class in text_line.py file  
