@@ -133,12 +133,12 @@ class MySet(data.Dataset):
                         anchors_of_current_x_start_x_end = self.get_i_j_anchor(i, j)
                         for anchor_index, anchor in enumerate(anchors_of_current_x_start_x_end):
                             current_iou = self.bb_intersection_over_union(anchor, current_proposal)
-                            if current_iou > max_iou:
+                            if current_iou > max_iou and (max_iou_i, j, anchor_index) not in cls_label:
                                 max_iou = current_iou
                                 max_iou_j = j
                                 max_iou_anchor = anchor
                                 max_iou_anchor_index = anchor_index
-                    if max_iou >= self.negative_anchor_iou_thresh and (max_iou_i, max_iou_j, max_iou_anchor_index) not in cls_label:
+                    if max_iou >= self.negative_anchor_iou_thresh:
                         cls_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = 1
                         reg_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = [((current_proposal[1] + current_proposal[3]) / 2 - (max_iou_anchor[1] + max_iou_anchor[3]) / 2) / (max_iou_anchor[3] - max_iou_anchor[1]), np.log((current_proposal[3] - current_proposal[1]) / (max_iou_anchor[3] - max_iou_anchor[1]))]
                         positive_anchors_of_current_text_line.append([max_iou_i, max_iou_j, max_iou_anchor_index, max_iou_anchor, current_proposal])
