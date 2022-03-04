@@ -64,8 +64,7 @@ python -m visdom.server
     valid_img_dir: validation image dir  
     train_label_dir: train label dir  
     valid_label_dir: validation label dir  
-    negative_anchor_iou_thresh: iou threshold, to define a negative anchor  
-    side_ref_dist_thresh: those anchors that are less than side_ref_dist_thresh pixels from the text edge are selected for side refine task training  
+    negative_anchor_iou_thresh: iou threshold, to define a negative anchor    
     num_workers: number of thread for data loading  
     data_aug_level:  "h", "m", "l" or None. "h" indicates high data augmentation, "m" indicates medium data augmentation, "l" indicates low data augmentation,None indicates will not use data augmentation  
     use_focal_loss: True will use focal loss, False will not  
