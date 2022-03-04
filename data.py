@@ -143,13 +143,11 @@ class MySet(data.Dataset):
                         reg_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = [((current_proposal[1] + current_proposal[3]) / 2 - (max_iou_anchor[1] + max_iou_anchor[3]) / 2) / (max_iou_anchor[3] - max_iou_anchor[1]), np.log((current_proposal[3] - current_proposal[1]) / (max_iou_anchor[3] - max_iou_anchor[1]))]
                         positive_anchors_of_current_text_line.append([max_iou_i, max_iou_j, max_iou_anchor_index, max_iou_anchor, current_proposal])
                         total_posotive_anchor_count += 1
-            for positive_anchor in positive_anchors_of_current_text_line:
-                text_line_center_x = (x_min + x_max) / 2
-                anchor = positive_anchor[3]
-                anchor_center_x = (anchor[0] + anchor[2]) / 2
-                anchor_w = anchor[2] - anchor[0]
-                if np.min(np.abs([anchor_center_x - x_min, anchor_center_x - x_max])) < self.side_ref_dist_thresh:
-                    side_ref_label[(positive_anchor[0], positive_anchor[1], positive_anchor[2])] = (x_min - anchor_center_x) / anchor_w if anchor_center_x < text_line_center_x else (x_max - anchor_center_x) / anchor_w
+                        if i == i_s or i == i_e:
+                            text_line_center_x = (x_min + x_max) / 2
+                            anchor_center_x = (max_iou_anchor[0] + max_iou_anchor[2]) / 2
+                            anchor_w = max_iou_anchor[2] - max_iou_anchor[0]
+                            side_ref_label[(max_iou_i, max_iou_j, max_iou_anchor_index)] = (x_min - anchor_center_x) / anchor_w if anchor_center_x < text_line_center_x else (x_max - anchor_center_x) / anchor_w
             positive_anchors_of_every_text_line.append(positive_anchors_of_current_text_line)
             text_proposals_of_every_text_line.append(proposals_of_current_text_line)
         # negative_anchors = []
