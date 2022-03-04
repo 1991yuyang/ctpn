@@ -35,7 +35,7 @@ bottom left: x4,y4
 
 class MySet(data.Dataset):
 
-    def __init__(self, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, is_train, data_aug_level):
+    def __init__(self, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, is_train, data_aug_level):
         """
 
         :param anchor_batch_size: batch size of anchors (postive+negtive)
@@ -44,13 +44,11 @@ class MySet(data.Dataset):
         :param img_size: image size like (h, w), h and w must be multiple of 16
         :param anchor_count: number of anchor of every point in conv5 feature
         :param negative_anchor_iou_thresh: negative anchor iou threshold
-        :param side_ref_dist_thresh: anchor x center to text line x center distance threshold, determin which anchor used for side refine
         :param is_train: True use data augmentation, False not use
         :param data_aug_level: 'h','m' or 'l', 'h' indicates high data augmentation, m indicates medium augmentation, l indicates low augmentation
         """
         self.data_aug_leve = data_aug_level
         self.negative_anchor_iou_thresh = negative_anchor_iou_thresh
-        self.side_ref_dist_thresh = side_ref_dist_thresh
         self.batch_size = anchor_batch_size
         self.img_size = img_size
         self.is_train = is_train
@@ -330,8 +328,8 @@ def collate_fn(batch):
     return imgs, cls_labels, reg_labels, side_ref_labels
 
 
-def make_loader(img_batch_size, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, num_workers, is_train, data_aug_level):
-    loader = iter(data.DataLoader(MySet(anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, side_ref_dist_thresh, is_train, data_aug_level), batch_size=img_batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn, num_workers=num_workers))
+def make_loader(img_batch_size, anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, num_workers, is_train, data_aug_level):
+    loader = iter(data.DataLoader(MySet(anchor_batch_size, img_dir, label_dir, img_size, anchor_count, negative_anchor_iou_thresh, is_train, data_aug_level), batch_size=img_batch_size, shuffle=True, drop_last=True, collate_fn=collate_fn, num_workers=num_workers))
     return loader
 
 
