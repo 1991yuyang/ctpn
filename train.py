@@ -17,6 +17,7 @@ lr = 0.001
 lr_de_rate = 0.5
 minimum_lr = 0.00001
 use_cosine_lr_sch = True
+cosine_lr_cycle_times = 1
 patience = 30
 weight_decay = 0.0005
 lamda_1 = 1
@@ -108,7 +109,7 @@ def main():
     if not use_cosine_lr_sch:
         lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, min_lr=minimum_lr, verbose=True)
     else:
-        lr_sch = optim.lr_scheduler.CosineAnnealingLR(optimizer, epoch // 2, eta_min=minimum_lr)
+        lr_sch = optim.lr_scheduler.CosineAnnealingLR(optimizer, epoch // int(2 * cosine_lr_cycle_times), eta_min=minimum_lr)
     for e in range(epoch):
         print("learinig rate:%f" % (lr_sch.get_lr()[0],))
         current_epoch = e + 1
