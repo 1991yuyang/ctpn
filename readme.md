@@ -53,6 +53,7 @@ python -m visdom.server
     image_batch_size: how many images send to model every training step  
     lr: initial learning rate  
     lr_de_rate: lr reduce rate, new_lr = lr_de_rate * old_lr, set value of this parameter if use ReduceLROnPlateau scheduler  
+    cosine_lr_cycle_times： the number of cycle changes of the learning rate, one cycle represents the change from the initial value to the minimum value and then to the initial value  
     minimum_lr: mininum learning rate of lr scheduler
     use_cosine_lr_sch: True will use cosine learning rate scheduler, False use ReduceLROnPlateau scheduler
     patience: number of epochs with no improvement after which learning rate will be reduced, set value of this parameter if use ReduceLROnPlateau scheduler  
