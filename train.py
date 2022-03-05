@@ -5,33 +5,35 @@ import os
 import torch as t
 from loss import LossFunc
 from visdom import Visdom
-CUDA_VISIBLE_DEVICES = "0"
+CUDA_VISIBLE_DEVICES = "0,1"
 os.environ["CUDA_VISIBLE_DEVICES"] = CUDA_VISIBLE_DEVICES
 device_ids = list(range(len(CUDA_VISIBLE_DEVICES.split(","))))
 img_size = (640, 640)
 backbone_type = "resnet18"  # "resnet18", "resnet34", "resnet50" or "vgg"
-epoch = 500
-anchor_batch_size = 128  # anchor_batch_size / 2 positive anchor and anchor_batch_size / 2 negative anchor selected from one image
-img_batch_size = 4  # image batch size
+epoch = 1000
+anchor_batch_size = 256  # anchor_batch_size / 2 positive anchor and anchor_batch_size / 2 negative anchor selected from one image
+img_batch_size = 32  # image batch size
 lr = 0.001
 lr_de_rate = 0.5
+minimum_lr = 0.00001
+use_cosine_lr_sch = True
 patience = 30
 weight_decay = 0.0005
 lamda_1 = 1
 lamda_2 = 2
-print_step = 2
+print_step = 5
 anchor_count = 10
 negative_anchor_iou_thresh = 0.5
-num_workers = 4
+num_workers = 8
 train_side_ref = True
-data_aug_level = "h"
+data_aug_level = "m"
 use_focal_loss = True
 focal_loss_alpha = 0.25
 focal_loss_gamma = 2
-train_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
-train_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
-valid_img_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_image"
-valid_label_dir = r"/home/yuyang/data/ICDAR_2015/Untitled Folder/train_label"
+train_img_dir = r"/home/guest/yuyang/data/ICDAR_2015/train_image"
+train_label_dir = r"/home/guest/yuyang/data/ICDAR_2015/train_label"
+valid_img_dir = r"/home/guest/yuyang/data/ICDAR_2015/valid_image"
+valid_label_dir = r"/home/guest/yuyang/data/ICDAR_2015/valid_label"
 best_valid_loss = float("inf")
 train_loss_window = Visdom()
 valid_loss_window = Visdom()
@@ -102,15 +104,22 @@ def main():
     model = nn.DataParallel(module=model, device_ids=device_ids)
     model = model.cuda(0)
     criterion = LossFunc(lamda_1, lamda_2, train_side_ref, use_focal_loss, focal_loss_gamma, focal_loss_alpha).cuda(0)
-    optimizer = optim.SGD(params=model.parameters(), lr=lr, weight_decay=weight_decay, momentum=0.9)
-    lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, verbose=True)
+    optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay4)
+    if not use_cosine_lr_sch:
+        lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, min_lr=minimum_lr, verbose=True)
+    else:
+        lr_sch = optim.lr_scheduler.CosineAnnealingLR(optimizer, epoch // 2, eta_min=minimum_lr)
     for e in range(epoch):
+        print("learinig rate:%f" % (lr_sch.get_lr()[0],))
         current_epoch = e + 1
         train_loader = make_loader(img_batch_size, anchor_batch_size, train_img_dir, train_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, num_workers, True, data_aug_level)
         valid_loader = make_loader(img_batch_size, anchor_batch_size, valid_img_dir, valid_label_dir, img_size, anchor_count, negative_anchor_iou_thresh, num_workers, False, data_aug_level)
         model = train_epoch(current_epoch, model, train_loader, criterion, optimizer)
         model, val_loss = valid_epoch(current_epoch, model, criterion, valid_loader)
-        lr_sch.step(val_loss)
+        if not use_cosine_lr_sch:
+            lr_sch.step(val_loss)
+        else:
+            lr_sch.step()
 
 
 if __name__ == "__main__":
