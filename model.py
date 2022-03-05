@@ -32,8 +32,8 @@ class FeatureExtractor(nn.Module):
         N, _, H, W = out.size()
         slide_window_result = self.unfold(out).permute(dims=[0, 2, 1]).contiguous()  # [N, H * W, C * 3 * 3]
         first_reshape_result = slide_window_result.view((slide_window_result.size()[0] * H, W, -1))  # [N * H, W, C * 3 * 3]
-        lstm_result, _ = self.brnn(first_reshape_result)
-        second_reshape_result = lstm_result.contiguous().view((N, -1, H, W))  # [N, 256, H, W]
+        lstm_result, _ = self.brnn(first_reshape_result)    # N * H, W, L
+        second_reshape_result = lstm_result.view((N, H, W, -1)).permute(dims=[0, 3, 1, 2])
         fc_feature = self.fc(second_reshape_result)  # [N, 512, H, W]
         return fc_feature
 
