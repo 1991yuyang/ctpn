@@ -104,7 +104,7 @@ def main():
     model = nn.DataParallel(module=model, device_ids=device_ids)
     model = model.cuda(0)
     criterion = LossFunc(lamda_1, lamda_2, train_side_ref, use_focal_loss, focal_loss_gamma, focal_loss_alpha).cuda(0)
-    optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay4)
+    optimizer = optim.Adam(params=model.parameters(), lr=lr, weight_decay=weight_decay)
     if not use_cosine_lr_sch:
         lr_sch = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=lr_de_rate, patience=patience, min_lr=minimum_lr, verbose=True)
     else:
