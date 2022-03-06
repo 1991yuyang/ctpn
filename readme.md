@@ -78,7 +78,18 @@ python -m visdom.server
 ```
 python train.py
 ```
-due to limited hardware resources, I only used 37 images from IDCAR_2015 for training, it should be noted that different hyperparameters need to be adjusted in different scenarios, for example, if underfitting occurs, you can increase the anchor_batch_size.
+due to limited hardware resources, I only used 37 images from IDCAR_2015 for training, it should be noted that different hyperparameters need to be adjusted in different scenarios, for example, if underfitting occurs, you can increase the anchor_batch_size.  
+
+## 2.4 train your custom dataset  
+(1)first you need to use labelme to label your dataset, you shuold create polygon for every text line in image, every polygon include 4 points, labeling order of points should be 'top left, top right, bottom right, bottom left'.  
+(2)second you should run labelme2txt.py file to convert json label file created by labelme to txt file, before this you shuold specify the following parameters in labelme2txt.py file:  
+labelme_json_file_dir: json label file dir  
+txt_file_save_dir: txt file save dir  
+and then, run labelme2txt.py use command:  
+```
+python labelme2txt.py
+```  
+(3)finally, follow 2.1 to 2.3  
 
 # 3 Predict  
 ## 3.1 set the parameter of text line connector in TextLineCfg class in text_line.py file  
