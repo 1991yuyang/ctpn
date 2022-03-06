@@ -83,6 +83,9 @@ class MySet(data.Dataset):
             text_bboxes = np.array([[int(i) for i in line.split(",")[:8]] for line in file.readlines()]).astype(float)  # shape: [n, 8], every line of this ndarray is a bounding box of text of current image, so the 'n' indicates there are n bounding boxes in current image
         if self.is_train:
             img_pil, text_bboxes = self.data_aug(img_pil, text_bboxes, orig_h, orig_w)
+        box_index_ = list(range(text_bboxes.shape[0]))
+        random.shuffle(box_index_)
+        text_bboxes = text_bboxes[box_index_, :]
         img_tensor = self.transformer(img_pil)
         h_ratio = orig_h / self.img_size[0]
         w_ratio = orig_w / self.img_size[1]
