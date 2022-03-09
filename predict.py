@@ -64,6 +64,8 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
     ....
     ]
     meaning of every element of the ndarray is [top left point, top right point, bottom left point, bottom right point, score]
+    image_patchs: every text line croped from original image, corresponding to text_on_orig_image, format is as follow:
+    [image_patch1, image_patch2, ....], every element of image_patchs is PIL image
     """
     with t.no_grad():
         rpn_cls, rpn_reg, side_ref = model(image_tensor)
@@ -98,6 +100,7 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
         all_predict_proposals.append(predict_proposal)
     all_predict_proposals = np.array(all_predict_proposals)
     text_on_orig_image = np.array([])
+    image_patchs = []
     if all_predict_proposals.tolist():
         nms_keep_index = ops.nms(t.from_numpy(all_predict_proposals[:, :4]), t.from_numpy(all_predict_proposals[:, 4]), nms_iou_thresh)
         all_predict_proposals_after_nms = all_predict_proposals[nms_keep_index, :]
@@ -116,9 +119,16 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
         text_on_orig_image[:, 0:8:2] = text_on_orig_image[:, 0:8:2] * w_ratio
         text_on_orig_image[:, 1:8:2] = text_on_orig_image[:, 1:8:2] * h_ratio
         #####################################
+        crop_image_pil = deepcopy(image_pil)
         orig_img_draw = ImageDraw.Draw(image_pil)
         if is_draw_textline_bbox:
             for line_resize, line_orig in zip(text_on_resized_image, text_on_orig_image):
+                minimum_x = np.min(line_orig[:8:2])
+                maxmum_x = np.max(line_orig[:8:2])
+                minimum_y = np.min(line_orig[1:8:2])
+                maxmum_y = np.max(line_orig[1:8:2])
+                image_patch = crop_image_pil.crop((minimum_x, minimum_y, maxmum_x, maxmum_y))
+                image_patchs.append(image_patch)
                 orig_img_draw.line([(int(line_orig[0]), int(line_orig[1])), (int(line_orig[2]), int(line_orig[3]))], fill="blue", width=4)
                 orig_img_draw.line([(int(line_orig[0]), int(line_orig[1])), (int(line_orig[4]), int(line_orig[5]))], fill="blue", width=4)
                 orig_img_draw.line([(int(line_orig[6]), int(line_orig[7])), (int(line_orig[2]), int(line_orig[3]))], fill="blue", width=4)
@@ -129,7 +139,7 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
     if result_save_name:
         image_pil.save(os.path.join(result_output_dir, result_save_name))
         #####################################
-    return text_on_orig_image
+    return text_on_orig_image, image_patchs
 
 
 def main():
