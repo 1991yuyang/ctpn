@@ -66,6 +66,7 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
     meaning of every element of the ndarray is [top left point, top right point, bottom left point, bottom right point, score]
     image_patchs: every text line croped from original image, corresponding to text_on_orig_image, format is as follow:
     [image_patch1, image_patch2, ....], every element of image_patchs is PIL image
+    image_pil: pil image with all text boxes
     """
     with t.no_grad():
         rpn_cls, rpn_reg, side_ref = model(image_tensor)
@@ -139,7 +140,7 @@ def predict_one_image(image_tensor, image_pil, result_save_name):
     if result_save_name:
         image_pil.save(os.path.join(result_output_dir, result_save_name))
         #####################################
-    return text_on_orig_image, image_patchs
+    return text_on_orig_image, image_patchs, image_pil
 
 
 def main():
